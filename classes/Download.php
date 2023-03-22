@@ -400,7 +400,7 @@ static function SendFile($file_path, $args=array())
 	header("Content-Type: " . $file_type . ((strpos($file_type, 'text/') !== false) ? '; charset=' : '')); 	// charset fix
 	header("Last-Modified: " . gmdate("D, d M Y H:i:s", $no_cache ? time() : $time) . " GMT");
 	
-	if(!empty($md5_hash) && $md5_hash{0} != '#') { // check if fake md5
+	if(!empty($md5_hash) && $md5_hash[0] != '#') { // check if fake md5
 		$pmd5 = @pack('H32',$md5_hash);
 		if(!empty($pmd5)) header("Content-MD5: ".@base64_encode($pmd5));
 	}

@@ -5,7 +5,7 @@ class WPFB_Core {
 	static $load_js = false;
 	static $file_browser_search = false;
 	static $file_browser_item = null;
-	static $post_url_cache = array();
+	static $post_url_cache = [];
 	static $ajax_url = '';
 	static $ajax_url_public = '';
 
@@ -26,7 +26,7 @@ class WPFB_Core {
 
 		self::$ajax_url = admin_url('admin-ajax.php?action=wpfilebase');
 		self::$ajax_url_public = strstr(home_url('/?wpfilebase_ajax=1'), '//'); // remove protocol qualifier
-		self::$settings = (object) get_option(WPFB_OPT_NAME, array());
+		self::$settings = (object) get_option(WPFB_OPT_NAME, []);
 		
 
 		if (defined('WPFB_NO_CORE_INIT'))
@@ -35,28 +35,28 @@ class WPFB_Core {
 		$lang_dir = defined('WPFB_LANG_DIR') ? ('../../' . WPFB_LANG_DIR) : basename(WPFB_PLUGIN_ROOT) . '/languages';
 		load_plugin_textdomain('wp-filebase', false, $lang_dir);
 		
-		add_action('parse_query', array(__CLASS__, 'ParseQuery')); // search
-		add_action('wp_enqueue_scripts', array(__CLASS__, 'EnqueueScripts'));
-		add_action('wp_footer', array(__CLASS__, 'Footer'));
-		add_action('generate_rewrite_rules', array(__CLASS__, 'GenRewriteRules'));
+		add_action('parse_query', [__CLASS__, 'ParseQuery']); // search
+		add_action('wp_enqueue_scripts', [__CLASS__, 'EnqueueScripts']);
+		add_action('wp_footer', [__CLASS__, 'Footer']);
+		add_action('generate_rewrite_rules', [__CLASS__, 'GenRewriteRules']);
 
 		add_action('wp_ajax_nopriv_wpfilebase', wpfb_callback('Ajax', 'PublicRequest'));
 		add_action('wp_ajax_wpfilebase', wpfb_callback('Ajax', 'AdminRequest'));
 		
-		add_action('wpfb_cron', array(__CLASS__, 'Cron'));
-		add_action('wpfilebase_sync', array(__CLASS__, 'Sync')); // for Developers: New wp-filebase actions
-		add_action('wpfilebase_bgscan', array(__CLASS__, 'BgScanWork')); // for Developers: New wp-filebase actions
+		add_action('wpfb_cron', [__CLASS__, 'Cron']);
+		add_action('wpfilebase_sync', [__CLASS__, 'Sync']); // for Developers: New wp-filebase actions
+		add_action('wpfilebase_bgscan', [__CLASS__, 'BgScanWork']); // for Developers: New wp-filebase actions
 
 		// for attachments and file browser
-		add_filter('the_content', array(__CLASS__, 'ContentFilter'), 10); // must be lower than 11 (before do_shortcode) and after wpautop (>9)
+		add_filter('the_content', [__CLASS__, 'ContentFilter'], 10); // must be lower than 11 (before do_shortcode) and after wpautop (>9)
 		
-		add_filter('pre_set_site_transient_update_plugins', array(__CLASS__, 'PreSetPluginsTransientFilter'));
-		add_filter('plugins_api', array(__CLASS__, 'PluginsApiFilter'), 10, 3);		
+		add_filter('pre_set_site_transient_update_plugins', [__CLASS__, 'PreSetPluginsTransientFilter']);
+		add_filter('plugins_api', [__CLASS__, 'PluginsApiFilter'], 10, 3);		
 		
-		add_filter('ext2type', array(__CLASS__, 'Ext2TypeFilter'));
+		add_filter('ext2type', [__CLASS__, 'Ext2TypeFilter']);
 		
 
-		add_shortcode('wpfilebase', array(__CLASS__, 'ShortCode'));
+		add_shortcode('wpfilebase', [__CLASS__, 'ShortCode']);
 		
 		self::DownloadRedirect();
 		if (isset($_GET['wpfilebase_ajax'])) {
@@ -66,31 +66,31 @@ class WPFB_Core {
 		}
 
 		// register treeview stuff
-		wp_register_script('wpfb-treeview', WPFB_PLUGIN_URI . 'extras/jquery/treeview/jquery.treeview-async-edit.min.js', array('jquery'), WPFB_VERSION);
-		wp_register_style('wpfb-treeview', WPFB_PLUGIN_URI . 'extras/jquery/treeview/jquery.treeview.css', array(), WPFB_VERSION);
+		wp_register_script('wpfb-treeview', WPFB_PLUGIN_URI . 'extras/jquery/treeview/jquery.treeview-async-edit.min.js', ['jquery'], WPFB_VERSION);
+		wp_register_style('wpfb-treeview', WPFB_PLUGIN_URI . 'extras/jquery/treeview/jquery.treeview.css', [], WPFB_VERSION);
 
 		// DataTables        
-		wp_register_script('jquery-dataTables', WPFB_PLUGIN_URI . 'extras/jquery/dataTables/datatables.min.js', array('jquery'), WPFB_VERSION);
-		wp_register_style('jquery-dataTables', WPFB_PLUGIN_URI . 'extras/jquery/dataTables/datatables.min.css', array(), WPFB_VERSION);
+		wp_register_script('jquery-dataTables', WPFB_PLUGIN_URI . 'extras/jquery/dataTables/datatables.min.js', ['jquery'], WPFB_VERSION);
+		wp_register_style('jquery-dataTables', WPFB_PLUGIN_URI . 'extras/jquery/dataTables/datatables.min.css', [], WPFB_VERSION);
 
-		wp_register_script(WPFB, WPFB_PLUGIN_URI . 'js/common.js', array('jquery'), WPFB_VERSION); // cond loading (see Footer)
-		wp_register_script('wpfb-live-admin', WPFB_PLUGIN_URI . 'js/live-admin.js', array('jquery'), WPFB_VERSION);
+		wp_register_script(WPFB, WPFB_PLUGIN_URI . 'js/common.js', ['jquery'], WPFB_VERSION); // cond loading (see Footer)
+		wp_register_script('wpfb-live-admin', WPFB_PLUGIN_URI . 'js/live-admin.js', ['jquery'], WPFB_VERSION);
 
 		if (empty(WPFB_Core::$settings->disable_css)) {
 			$wpfb_css = get_option('wpfb_css');
-			wp_enqueue_style(WPFB, strstr($wpfb_css ? $wpfb_css : (WPFB_PLUGIN_URI . 'wp-filebase.css'), '//'), array(), WPFB_VERSION, 'all');
+			wp_enqueue_style(WPFB, strstr($wpfb_css ? $wpfb_css : (WPFB_PLUGIN_URI . 'wp-filebase.css'), '//'), [], WPFB_VERSION, 'all');
 		}
 
 		// live admin normaly for front-end, but also on filebrowser backend
 		if (is_admin() ? (isset($_GET['page']) && $_GET['page'] == 'wpfilebase_filebrowser') : (WPFB_Core::CurUserCanCreateCat() || WPFB_Core::CurUserCanUpload())) {
 			wp_enqueue_script('wpfb-live-admin');
-			wp_enqueue_style('wpfb-live-admin', WPFB_PLUGIN_URI . 'css/live-admin.css', array(), WPFB_VERSION);
+			wp_enqueue_style('wpfb-live-admin', WPFB_PLUGIN_URI . 'css/live-admin.css', [], WPFB_VERSION);
 			
-			self::$settings->admin_bar && add_action('admin_bar_menu', array(__CLASS__, 'AdminBar'), 80);
+			self::$settings->admin_bar && add_action('admin_bar_menu', [__CLASS__, 'AdminBar'], 80);
 			
 			if (!empty(self::$settings->file_context_menu)) {
-				wp_enqueue_script('jquery-contextmenu', WPFB_PLUGIN_URI . 'extras/jquery/contextmenu/jquery.contextmenu.js', array('jquery'));
-				wp_enqueue_style('jquery-contextmenu', WPFB_PLUGIN_URI . 'extras/jquery/contextmenu/jquery.contextmenu.css', array(), WPFB_VERSION);
+				wp_enqueue_script('jquery-contextmenu', WPFB_PLUGIN_URI . 'extras/jquery/contextmenu/jquery.contextmenu.js', ['jquery']);
+				wp_enqueue_style('jquery-contextmenu', WPFB_PLUGIN_URI . 'extras/jquery/contextmenu/jquery.contextmenu.css', [], WPFB_VERSION);
 			}
 		}
 
@@ -105,7 +105,7 @@ class WPFB_Core {
 	const LOG_MAX_FILE_SIZE = 200000; // 200K
 	
 	static function GetLogFile($for) {
-		static $cache = array();
+		static $cache = [];
 		
 		if(isset($cache[$for]))
 			return $cache[$for];
@@ -165,7 +165,7 @@ class WPFB_Core {
 
 	static function LogMsg($msg, $for = 'core') {
 		$t = current_time('mysql');
-		$msg = str_replace(array("\r\n", "\n", "  "), " ", $msg);
+		$msg = str_replace(["\r\n", "\n", "  "], " ", $msg);
 		return @error_log("[$t] $msg\n", 3, self::GetLogFile($for));
 	}
 
@@ -210,7 +210,7 @@ class WPFB_Core {
 
 		if (!empty($_GET['wpfb_s']) || !empty($_GET['s'])) {
 			WPFB_Core::$file_browser_search = true;
-			add_filter('the_excerpt', array(__CLASS__, 'SearchExcerptFilter'), 100); // must be lower than 11 (before do_shortcode) and after wpautop (>9)
+			add_filter('the_excerpt', [__CLASS__, 'SearchExcerptFilter'], 100); // must be lower than 11 (before do_shortcode) and after wpautop (>9)
 		}
 
 		// check if current post is file browser and get currenlty selected file or category
@@ -318,7 +318,7 @@ class WPFB_Core {
 
 	static function ShortCode($atts, $content = null, $tag = null) {
 		wpfb_loadclass('Output');
-		return WPFB_Output::ProcessShortCode(shortcode_atts(array(
+		return WPFB_Output::ProcessShortCode(shortcode_atts([
 						'tag' => 'list', // file, fileurl, attachments
 						'id' => -1,
 						'path' => null,
@@ -329,7 +329,7 @@ class WPFB_Core {
 						'num' => 0,
 						'pagenav' => 1,
 						'linktext' => null,
-																), $atts), $content, $tag);
+																], $atts), $content, $tag);
 	}
 
 	static function Footer() {
@@ -431,11 +431,11 @@ class WPFB_Core {
 			wpfb_call('Sync', 'Sync');
 			$t_end = microtime(true);
 			self::LogMsg('Cron sync done!', 'sync');
-			update_option('wpfilebase_cron_sync_stats', array(
+			update_option('wpfilebase_cron_sync_stats', [
 				 't_start' => $t_start,
 				 't_end' => $t_end,
 				 'mem_peak' => memory_get_peak_usage()
-			));
+			]);
 		}
 	}
 
@@ -444,11 +444,11 @@ class WPFB_Core {
 	}
 
 	public static function GetCustomFields($full_field_names = false, &$default_values = null) {
-		$custom_fields = isset(WPFB_Core::$settings->custom_fields) ? explode("\n", WPFB_Core::$settings->custom_fields) : array();
-		$arr = array();
-		$default_values = array();
+		$custom_fields = isset(WPFB_Core::$settings->custom_fields) ? explode("\n", WPFB_Core::$settings->custom_fields) : [];
+		$arr = [];
+		$default_values = [];
 		if (empty($custom_fields[0]))
-			return array();
+			return [];
 		foreach ($custom_fields as $cf) {
 			$cfa = explode("|", $cf);
 			$arr[$k = $full_field_names ? ('file_custom_' . trim($cfa[1])) : trim($cfa[1])] = $cfa[0];
@@ -463,7 +463,9 @@ class WPFB_Core {
 	}
 
 	static function CreateTplFunc($parsed_tpl) {
-		return create_function('$f,$e=null', "return ($parsed_tpl);");
+		//JJD return create_function('$f,$e=null', "return ($parsed_tpl);");
+		$func = function($f, $e=null) use ($parsed_tpl) {return ($parsed_tpl);};
+		return $func;
 	}
 
 	/**

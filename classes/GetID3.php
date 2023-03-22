@@ -197,8 +197,8 @@ class WPFB_GetID3 {
 			if (is_array($val) || is_object($val))
 				self::cleanInfoByRef($info[$key]);
 			else if (is_string($val)) {
-				$a = ord($val{0});
-				if ($a < 32 || $a > 126 || $val{0} == '?' || strpos($val, chr(01)) !== false || strpos($val, chr(0x09)) !== false) {  // check for binary data
+				$a = ord($val[0]);
+				if ($a < 32 || $a > 126 || $val[0] == '?' || strpos($val, chr(01)) !== false || strpos($val, chr(0x09)) !== false) {  // check for binary data
 					unset($info[$key]);
 					continue;
 				}

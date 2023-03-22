@@ -34,7 +34,9 @@ private static function getSearchTerms($s)
 			$search_terms = array($s);
 		else {
 			preg_match_all('/".*?("|$)|((?<=[\\s",+])|^)[^\\s",+]+/', $s, $matches);
-			$search_terms = array_map(create_function('$a', 'return trim($a, "\\"\'\\n\\r ");'), $matches[0]);
+			//JJD $search_terms = array_map(create_function('$a', 'return trim($a, "\\"\'\\n\\r ");'), $matches[0]);
+			$func = function($a){return trim($a, "\"\'\\n\\r ");};
+			$search_terms = array_map($func, $matches[0]);
 		}
 	}
 	return $search_terms;
@@ -63,7 +65,7 @@ static function SearchWhereSql($search_id3=false, $s=null) {
 	
 	// TODO: search fields with match...
 	foreach($search_terms as $term) {
-		$where .= ($not = ($term{0} === '-')) ? " AND NOT (" : " AND (";
+		$where .= ($not = ($term[0] === '-')) ? " AND NOT (" : " AND (";
 		if($not) $term = substr($term,1);
 		
 		$wc = strpos($term, '*') !== false; // check for wildcard

@@ -422,7 +422,7 @@ static function SetupDBTables($old_ver=null)
 	// dont use wpdb->query, because it prints errors
 	foreach($queries as $sql)
 	{
-		if($sql{0} == '@') {
+		if($sql[0] == '@') {
 			$sql = substr($sql, 1);
 			$wpdb->suppress_errors();
 			$wpdb->query($sql);

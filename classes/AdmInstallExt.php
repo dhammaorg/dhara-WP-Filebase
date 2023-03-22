@@ -50,7 +50,9 @@ class WPFB_AdmInstallExt {
     static function Display() {
         add_filter('plugins_api', array(__CLASS__, 'PluginsApiFilter'), 10, 3);
         add_filter('plugin_install_action_links', array(__CLASS__, 'PluginActionLinksFilter'), 10, 2);
-        add_filter('install_plugins_nonmenu_tabs', create_function('$tabs', '$tabs[]="new";return $tabs;'));
+        //JJD add_filter('install_plugins_nonmenu_tabs', create_function('$tabs', '$tabs[]="new";return $tabs;'));
+		$func=function($tabs){$tabs[]="new"; return $tabs;};
+		add_filter('install_plugins_nonmenu_tabs',$func);
         self::DisplayInstallPlugins();
     }
 
