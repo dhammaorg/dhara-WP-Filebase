@@ -65,6 +65,9 @@ static function SearchWhereSql($search_id3=false, $s=null) {
 	
 	// TODO: search fields with match...
 	foreach($search_terms as $term) {
+                // JJD 8/18/23 #6 handle empty term
+                if (empty($term))
+                    continue;
 		$where .= ($not = ($term[0] === '-')) ? " AND NOT (" : " AND (";
 		if($not) $term = substr($term,1);
 		
