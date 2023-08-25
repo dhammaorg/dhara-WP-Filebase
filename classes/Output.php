@@ -349,14 +349,24 @@ class WPFB_Output
             $check_permissions =  (WPFB_Core::$settings->hide_inaccessible && !($filesel && wpfb_call('Core', 'CurUserCanUpload')) && !($is_admin && current_user_can('manage_options')))  ;
             $files = WPFB_File::GetFiles2( $where, $check_permissions, $sql_sort_files );
 
-            foreach ($files as $f)
+            foreach ($files as $f) {
                 $file_items[$i++] = (object)array(
-                    'id' => $idp_file . $f->file_id, 'file_id' => $f->file_id,
-                    'text' => $filesel ? ('<a href="javascript:;" onclick="' . sprintf($args['onselect'], $f->file_id) . '">' . $f->get_tpl_var('file_small_icon') . ' ' . esc_html($f->GetTitle(24)) . '</a> <span style="font-size:75%;vertical-align:top;">' . esc_html($f->file_name) . '</span>') : $f->GenTpl2($file_tpl, false),
+                    'id' => $idp_file . $f->file_id, 
+                    'file_id' => $f->file_id,
+                    'text' => $filesel 
+                        ? ('<a href="javascript:;" onclick="' 
+                            . sprintf($args['onselect'], $f->file_id) 
+                            . '">' 
+                            . $f->get_tpl_var('file_small_icon') 
+                            . ' ' . esc_html($f->GetTitle(24)) 
+                            . '</a> <span style="font-size:75%;vertical-align:top;">' 
+                            . esc_html($f->file_name) . '</span>') 
+                        : $f->GenTpl2($file_tpl, false),
                     'classes' => $filesel ? 'file' : null,
                     'type' => 'file',
                     'hasChildren' => false
                 );
+            }
         }
 
 

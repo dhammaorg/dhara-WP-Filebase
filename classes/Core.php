@@ -463,8 +463,8 @@ class WPFB_Core {
 	}
 
 	static function CreateTplFunc($parsed_tpl) {
-		//JJD return create_function('$f,$e=null', "return ($parsed_tpl);");
-		$func = function($f, $e=null) use ($parsed_tpl) {return ($parsed_tpl);};
+        //ORIG: return create_function('$f,$e=null', "return ($parsed_tpl);");
+		$func = function($parsed_tpl, $f, $e=null) {return ("$parsed_tpl");};  // JJD fix #4 8/25/23
 		return $func;
 	}
 
