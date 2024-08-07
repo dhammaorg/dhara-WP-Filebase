@@ -8,8 +8,8 @@
 //  see readme.txt for more details                            //
 /////////////////////////////////////////////////////////////////
 //                                                             //
-// module.misc.msoffice.php                                    //
-// module for analyzing MS Office (.doc, .xls, etc) files      //
+// module.misc.gpx.php                                        //
+// module for analyzing gpx files                             //
 // dependencies: NONE                                          //
 //                                                            ///
 /////////////////////////////////////////////////////////////////
@@ -18,7 +18,7 @@ if (!defined('GETID3_INCLUDEPATH')) { // prevent path-exposing attacks that acce
 	exit;
 }
 
-class getid3_msoffice extends getid3_handler
+class getid3_gpx extends getid3_handler
 {
 	/**
 	 * @return bool
@@ -26,16 +26,9 @@ class getid3_msoffice extends getid3_handler
 	public function Analyze() {
 		$info = &$this->getid3->info;
 
-		$this->fseek($info['avdataoffset']);
-		$DOCFILEheader = $this->fread(8);
-		$magic = "\xD0\xCF\x11\xE0\xA1\xB1\x1A\xE1";
-		if (substr($DOCFILEheader, 0, 8) != $magic) {
-			$this->error('Expecting "'.getid3_lib::PrintHexBytes($magic).'" at '.$info['avdataoffset'].', found '.getid3_lib::PrintHexBytes(substr($DOCFILEheader, 0, 8)).' instead.');
-			return false;
-		}
-		$info['fileformat'] = 'msoffice';
+		$info['fileformat'] = 'gpx';
 
-		$this->error('MS Office (.doc, .xls, etc) parsing not enabled in this version of getID3() ['.$this->getid3->version().']');
+		$this->error('gpx parsing not enabled in this version of getID3()');
 		return false;
 
 	}
